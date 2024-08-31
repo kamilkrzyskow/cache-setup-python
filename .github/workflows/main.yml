@@ -1,0 +1,80 @@
+name: Compare Cache
+
+on:
+  push:
+    branches: main
+
+permissions:
+  contents: write
+
+jobs:
+  test_520_with_separate_venv_cache:
+    name: test_520_with_separate_venv_cache
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Python
+        id: install-python  # The id is used in the cache 'key' below
+        uses: actions/setup-python@v5.2.0
+        with:
+          python-version: 3.12
+          cache: pip
+      - name: Process Venv Cache
+        id: cache-requirements # The id is used to retrieve the state of the cache-hit below
+        uses: actions/cache@v4
+        with:
+          path: venv
+          # Use the version information from the installation, helps with venv symlinks shenanigans
+          # Hash some file that keeps track of the requirements version, can be any poetry lock file etc.
+          key: requirements-${{ steps.install-python.outputs.python-version }}-${{ hashFiles('requirements*.txt') }}
+      - name: Install Uncached Requirements
+        # There was no primary key cache hit, so install/add new requirements
+        if: steps.cache-requirements.outputs.cache-hit != 'true'
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+      - name: Use the packages inside the venv
+        # Not important for this example, but was added for the sake of completeness
+        run: venv/bin/python -m mkdocs new .
+  test_511_with_separate_venv_cache:
+    name: test_511_with_separate_venv_cache
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Python
+        id: install-python  # The id is used in the cache 'key' below
+        uses: actions/setup-python@v5.1.1
+        with:
+          python-version: 3.12
+          cache: pip
+      - name: Process Venv Cache
+        id: cache-requirements # The id is used to retrieve the state of the cache-hit below
+        uses: actions/cache@v4
+        with:
+          path: venv
+          # Use the version information from the installation, helps with venv symlinks shenanigans
+          # Hash some file that keeps track of the requirements version, can be any poetry lock file etc.
+          key: requirements-${{ steps.install-python.outputs.python-version }}-${{ hashFiles('requirements*.txt') }}
+      - name: Install Uncached Requirements
+        # There was no primary key cache hit, so install/add new requirements
+        if: steps.cache-requirements.outputs.cache-hit != 'true'
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+      - name: Use the packages inside the venv
+        # Not important for this example, but was added for the sake of completeness
+        run: venv/bin/python -m mkdocs new .
+  test_520_pip_cache_only:
+    name: test_520_pip_cache_only
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Python
+        uses: actions/setup-python@v5.2.0
+        with:
+          python-version: 3.12
+          cache: pip
+      - name: Install Requirements
+        run: pip install -r requirements.txt
+      - name: Use the packages
+        # Not important for this example, but was added for the sake of completeness
+        run: python -m mkdocs new .
