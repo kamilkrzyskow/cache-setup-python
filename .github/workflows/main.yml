@@ -26,7 +26,7 @@ jobs:
           path: venv
           # Use the version information from the installation, helps with venv symlinks shenanigans
           # Hash some file that keeps track of the requirements version, can be any poetry lock file etc.
-          key: requirements-${{ steps.install-python.outputs.python-version }}-${{ hashFiles('requirements*.txt') }}
+          key: requirements-${{ steps.install-python.outputs.python-version }}-${{ hashFiles('requirements*.txt', 'pyproject*.toml') }}
       - name: Install Uncached Requirements
         # There was no primary key cache hit, so install/add new requirements
         if: steps.cache-requirements.outputs.cache-hit != 'true'
@@ -55,7 +55,7 @@ jobs:
           path: venv
           # Use the version information from the installation, helps with venv symlinks shenanigans
           # Hash some file that keeps track of the requirements version, can be any poetry lock file etc.
-          key: requirements-${{ steps.install-python.outputs.python-version }}-${{ hashFiles('requirements*.txt') }}
+          key: requirements-${{ steps.install-python.outputs.python-version }}-${{ hashFiles('requirements*.txt', 'pyproject*.toml') }}
       - name: Install Uncached Requirements
         # There was no primary key cache hit, so install/add new requirements
         if: steps.cache-requirements.outputs.cache-hit != 'true'
