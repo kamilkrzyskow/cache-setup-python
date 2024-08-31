@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Python
         id: install-python  # The id is used in the cache 'key' below
-        uses: actions/setup-python@v5  # Does the v5 not use x64 in the cache key?
+        uses: actions/setup-python@v5.2.0
         with:
           python-version: 3.12
           cache: pip
